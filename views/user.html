@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}{{ hyvesUser.getName() }} stats{% endblock %}
+{% block description %}De statistieken van {{ hyvesUser.getName() }} op TopHyvers.nl{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" type="text/css" href="/js/fancybox/jquery.fancybox-1.3.4.css" media="screen" />
+<!--[if lte IE 8]><script type="text/javascript" src="/js/libs/excanvas.min.js"></script><![endif]--> 
+{% endblock %}
+
+{% block content_class %}user {{ hyvesUser.getUsername() }}{% endblock %}
+
+{% block content %}
+<h2>{{ hyvesUser.getName() }}</h2>
+<div class="clearfix info">
+    <a id="profilepic-link" href="{{ hyvesUser.getPictureLink(6) }}"><img id="profilepic" src="{{ hyvesUser.getPictureLink(4) }}" /></a>
+    <ul id="stats">
+        <li><span>Vrienden:</span>&nbsp;{{ hyvesUser.getFriends()|number }}</li>
+        <li><span>Keer bekeken:</span>&nbsp;{{ hyvesUser.getViews()|number }}</li>
+        <li><span>Hyver sinds:</span>&nbsp;{{ hyvesUser.getCreated()|date("d-m-Y") }}</li>
+        <li><span>Hyves pagina:</span>&nbsp;<a target="_blank" href="{{ hyvesUser.getHyvesURL() }}">{{ hyvesUser.getHyvesURL() }}</a></li>
+    </ul>
+</div>
+{% if stats|length > 1 %}
+<h3>Vrienden</h3>
+<div id="stats-graph"></div>
+{% else %}
+<div><p>Er zal hier een grafiek worden getoont zodra er meer data is verzameld</p></div>
+{% endif %}
+<table id="stats-table">
+    <thead>
+        <tr>
+            <th class="date">Datum</th>
+            <th class="views">x Bekeken</th>
+            <th class="friends">Vrienden</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for stat in stats %}
+        <tr class="{{ cycle(['odd', 'even'], i) }}">
+        	<td>{{ stat.date_inserted|date('d-m-Y') }}</td>
+        	<td>{{ stat.views|number }}{% if stat.views_change > 0 %} (<span class="positive">+{{ stat.views_change|number }}</span>){% endif %}</td>
+        	<td>{{ stat.friends|number }}{% if stat.friends_change > 0 %} (<span class="positive">+{{ stat.friends_change|number }}</span>){%  elseif stat.friends_change < 0 %} (<span class="negative">{{ stat.friends_change|number }}</span>){% endif %}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
+{% block endbody %}
+<script type="text/javascript" src="/js/flot/jquery.flot.min.js"></script>
+<script type="text/javascript" src="/js/fancybox/jquery.fancybox-1.3.4.pack.js"></script>
+<script type="text/javascript">
+$(function(){
+$('#profilepic-link').fancybox();
+{% if stats|length > 1 %}
+var data = {{ graphStats|raw }};
+var ticks = {{ graphTicks|raw }};
+$.plot($("#stats-graph"), [data], {
+series: {
+    lines:{
+        lineWidth:5}},
+yaxis: {
+    minTickSize:1, 
+    tickDecimals:0}, 
+xaxis: {
+    ticks:ticks}
+});
+{% endif %}
+});
+</script>
+{% endblock %}

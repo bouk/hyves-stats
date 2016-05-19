@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}Zoeken{% endblock %}
+
+{% block content_class %}search{% endblock %}
+
+{% block content %}
+<h2>Zoeken</h2>
+<form action="/zoeken" method="get">
+    <input type="text" name="q" {% if query %}value="{{ query|e }}"{% endif %}>
+    <input type="submit" value="Zoek">
+</form>
+{% if users %}
+    <table class="hyver-list">
+        <thead>
+	        <tr>
+		        <th class="photo"></th>
+		        <th class="name">Naam</th>
+		        <th>Vrienden</th>
+		        <th>x Bekeken</th>
+	        </tr>
+        </thead>
+        <tbody>
+	        {% for user in users %}
+            <tr class="{{ cycle(['odd', 'even'], i) }}">
+		        <td><a href="{{ user.getStatsURL() }}"><img src="{{ user.getPictureLink(14) }}"/></a></td>
+		        <td><a href="{{ user.getStatsURL() }}">{{ user.getName() }}</a></td>
+		        <td>{{ user.getFriends()|number }}</td>
+		        <td>{{ user.getViews()|number }}</td>
+	        </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <p>Staat degene waar je naar zoekt er niet bij? Dan is die waarschijnlijk nog niet aangemeld voor TopHyvers.nl</p>
+    <p><a target="_blank" href="http://www.hyves.nl/search/hyver/?searchterms={{ query|url_encode }}">Zoek op Hyves.nl naar die persoon</a></p>
+    <p>Je kan ook proberen specifieker te zoeken, bijvoorbeeld '{{ query|e }} Amsterdam'</p>
+{% else %}
+    {% if username %}
+        <p>'{{ query|e }}' is niet gevonden, maar is wel een bestaande Hyver</p>
+        <p>Wil je hem/haar aanmelden voor TopHyvers.nl? 
+                    <form action="{{ constant('APP_URI') }}/hyver/nieuw" method="post">
+                    	<input type="hidden" name="username" value="{{ username|e }}">
+                    	<input type="submit" value="Ja!">
+                    </form></p>
+    {% elseif query %}
+        <p>Geen resultaten voor '{{ query|e }}', probeer specifieker te zoeken, bijvoorbeeld '{{ query|e }} Amsterdam'</p>
+        <p>Het is ook mogelijk dat degene waar je naar zoekt zich nog niet heeft aangemeld voor TopHyvers.nl</p>
+    {% endif %}
+{% endif %}
+{% endblock %}

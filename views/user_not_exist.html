@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block title %}Gebruiker {{ username|e }} bestaat niet{% endblock %}
+
+{% block content %}
+De hyver {{ username|e }} bestaat niet
+{% endblock %}
+{% block endbody %}
+<script type="text/javascript">
+$(function(){
+	$('#newUsername').focus();
+});
+</script>
+{% endblock %}

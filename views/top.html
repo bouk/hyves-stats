@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block title %}Top Hyvers{% endblock %}
+
+{% block content %}
+{% if topUsers %}
+    {% if (not hideTopNav) and (prevlink or nextlink) %}<p class="topnav">{% if prevlink %}<a class="prev" href="{{ prevlink }}">&laquo; Vorige</a>{% endif %} {{ 1 + (page-1)*perPage }} tot {% if ((page)*perPage) < total %}{{ (page)*perPage }}{% else %}{{ total }}{% endif %} van de {{ total }} {% if nextlink %}<a class="next" href="{{ nextlink }}">Volgende &raquo;</a>{% endif %}</p>{% endif %}
+    <table class="hyver-list">
+	    <thead>
+		    <tr>
+			    <th class="position"></th>
+			    <th class="photo"></th>
+			    <th class="name">Naam</th>
+			    <th>{% if friendslink %}<a href="{{ friendslink }}">{% endif %}Vrienden{% if friendslink %}</a>{% endif %}</th>
+			    <th>{% if viewslink %}<a href="{{ viewslink }}">{% endif %}x Bekeken{% if viewslink %}</a>{% endif %}</th>
+		    </tr>
+	    </thead>
+	    <tbody>
+		    {% for user in topUsers %}
+            <tr class="{{ cycle(['odd', 'even'], i) }}">
+			    <td class="position">{{ loop.index + (page-1)*perPage }}</td>
+			    <td><a href="{{ user.getStatsURL() }}"><img src="{{ user.getPictureLink(14) }}"/></a></td>
+			    <td><a href="{{ user.getStatsURL() }}">{{ user.getName() }}</a></td>
+			    <td>{{ user.getFriends()|number }}{% if user.getFriendsChange() > 0 %} (<span class="positive">+{{ user.getFriendsChange()|number }}</span>){%  elseif user.getFriendsChange() < 0 %} (<span class="negative">{{ user.getFriendsChange()|number }}</span>){% endif %}</td>
+			    <td>{{ user.getViews()|number }}{% if user.getViewsChange() > 0 %} (<span class="positive">+{{ user.getViewsChange()|number }}</span>){% endif %}</td>
+		    </tr>
+            {% endfor %}
+	    </tbody>
+    </table>
+    {% if prevlink or nextlink %}<p class="bottomnav">{% if prevlink %}<a class="prev" href="{{ prevlink }}">&laquo; Vorige</a>{% endif %} {% if nextlink %}<a class="next" href="{{ nextlink }}">Volgende &raquo;</a>{% endif %}</p>{% endif %}
+{% else %}
+    <p>Niks gevonden</p>
+{% endif %}
+{% endblock %}
